@@ -45,4 +45,19 @@ config LIBUKINTCTLR_MAX_HANDLERS_PER_IRQ
 	  Define the number of handlers supported per IRQ line.
 endmenu
 
+menu "Driver Options"
+config LIBBCM2835_SPI
+        bool "BCM2835/7 SPI0 driver (Raspberry Pi 3)"
+        default y
+        depends on ARCH_ARM_64
+        help
+          Polled-mode driver for the BCM2835/BCM2837 SPI0 controller as
+          found on the Raspberry Pi 3 Model B.  Provides bcm2835_spi_init(),
+          bcm2835_spi_transfer(), and bcm2835_spi_set_clock().
+
+          Derived from FreeBSD sys/arm/broadcom/bcm2835/bcm2835_spi.c.
+          Uses interrupt-free polled transfers so it is safe to call during
+          early platform initialisation before the IRQ subsystem is up.
+endmenu
+
 endif
