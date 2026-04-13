@@ -24,6 +24,12 @@ LIBRASPIPLAT_CINCLUDES-y         += -I$(UK_PLAT_COMMON_BASE)/include
 LIBRASPIPLAT_CINCLUDES-y         += -I$(UK_PLAT_DRIVERS_BASE)/include
 LIBRASPIPLAT_CINCLUDES-$(CONFIG_LIBBCM2835_SPI) += -I$(LIBRASPIPLAT_BASE)/drivers/include
 
+## GPIO shim: include paths for bcm_gpio_shim.c and kobj_descriptors.c
+LIBRASPIPLAT_CINCLUDES-$(CONFIG_LIBBCM2835_GPIO) += \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include/uk \
+    -I$(LIBRASPIPLAT_BASE)/include
+
 LIBRASPIPLAT_ASFLAGS             += -DRASPIPLAT -DRASPPI=$(RASPPI) -DAARCH64=$(AARCH64)
 LIBRASPIPLAT_CFLAGS              += -DRASPIPLAT -DRASPPI=$(RASPPI) -DAARCH64=$(AARCH64)
 LIBRASPIPLAT_CXXFLAGS            += -DRASPIPLAT -DRASPPI=$(RASPPI) -DAARCH64=$(AARCH64)
@@ -90,6 +96,34 @@ LIBRASPIPLAT_SRCS-y				+= $(LIBRASPIPLAT_BASE)/eth/lib/timer2.c
 LIBRASPIPLAT_SRCS-y				+= $(LIBRASPIPLAT_BASE)/eth/lib/interrupt.c
 LIBRASPIPLAT_SRCS-y				+= $(LIBRASPIPLAT_BASE)/drivers/raspi_net.c
 LIBRASPIPLAT_SRCS-$(CONFIG_LIBBCM2835_SPI)      += $(LIBRASPIPLAT_BASE)/drivers/bcm2835_spi.c
+
+## GPIO shim: isolated include path for the unmodified FreeBSD driver
+BCM_GPIO_FREEBSD_CINCLUDES := \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd/sys \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd/dev \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd/machine \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include \
+    -I$(LIBRASPIPLAT_BASE)/drivers/freebsd \
+    -I$(LIBRASPIPLAT_BASE)/include
+
+## GPIO shim source files
+LIBRASPIPLAT_SRCS-$(CONFIG_LIBBCM2835_GPIO) += \
+    $(LIBRASPIPLAT_BASE)/drivers/kobj_descriptors.c
+LIBRASPIPLAT_SRCS-$(CONFIG_LIBBCM2835_GPIO) += \
+    $(LIBRASPIPLAT_BASE)/drivers/bcm_gpio_shim.c
+LIBRASPIPLAT_SRCS-$(CONFIG_LIBBCM2835_GPIO) += \
+    $(LIBRASPIPLAT_BASE)/drivers/freebsd/bcm2835_gpio.c|freebsd_gpio
+
+## Per-file CFLAGS for the FreeBSD driver (isolated include path, no warnings)
+$(LIBRASPIPLAT_BASE)/drivers/freebsd/bcm2835_gpio.c_FLAGS := \
+    $(BCM_GPIO_FREEBSD_CINCLUDES) \
+    -Wno-unused-parameter \
+    -Wno-missing-prototypes \
+    -Wno-implicit-function-declaration \
+    -Wno-strict-prototypes \
+    -fno-builtin-printf \
+    -DFREEBSD_SHIM_LAYER=1
 LIBRASPIPLAT_SRCS-y				+= $(LIBRASPIPLAT_BASE)/lcpu_arch_rpi.c
 ifeq ($(findstring y,$(CONFIG_RASPI_LCD) $(CONFIG_RASPI_LCD)),y)
 LIBRASPIPLAT_SRCS-y				+= $(LIBRASPIPLAT_BASE)/lfb.c

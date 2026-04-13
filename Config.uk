@@ -58,6 +58,19 @@ config LIBBCM2835_SPI
           Derived from FreeBSD sys/arm/broadcom/bcm2835/bcm2835_spi.c.
           Uses interrupt-free polled transfers so it is safe to call during
           early platform initialisation before the IRQ subsystem is up.
+
+config LIBBCM2835_GPIO
+        bool "BCM2835/7 GPIO driver (FreeBSD shim, Raspberry Pi 3)"
+        default n
+        depends on ARCH_ARM_64
+        help
+          GPIO driver using the unmodified FreeBSD bcm2835_gpio.c driver
+          via a minimal KOBJ shim layer.  No edits to the FreeBSD source
+          are required: bcm_gpio_probe and bcm_gpio_attach remain static;
+          the KOBJ constructor/dispatch mechanism finds them at runtime.
+
+          Exposes uk_gpio_init(), uk_gpio_set(), uk_gpio_get(),
+          uk_gpio_set_func(), and uk_gpio_set_pud() to applications.
 endmenu
 
 endif
