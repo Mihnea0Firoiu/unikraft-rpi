@@ -18,9 +18,9 @@
 #include <uk/gpio.h>
 #include <bcm_gpio_internal.h>
 
-/* -----------------------------------------------------------------------
+/* 
  * BCM2837 GPIO hardware constants (peripherals datasheet §6.1)
- * ----------------------------------------------------------------------- */
+ * */
 #ifndef MMIO_BASE
 #  define MMIO_BASE  0x3F000000UL
 #endif
@@ -50,9 +50,9 @@ static inline void gpio_delay_cycles(unsigned n)
     while (n--) __asm__ volatile("nop");
 }
 
-/* -----------------------------------------------------------------------
+/*
  * Static resources provided to the FreeBSD driver
- * ----------------------------------------------------------------------- */
+ * */
 static struct resource _res_mem = {
     .r_bustag    = 0,
     .r_bushandle = GPIO_PHYS_BASE,
@@ -75,9 +75,9 @@ static struct resource _res_irq1 = {
     .r_start     = GPIO_IRQ_BANK1,
 };
 
-/* -----------------------------------------------------------------------
+/*
  * bus_alloc_resources / bus_release_resources
- * ----------------------------------------------------------------------- */
+ * */
 int bus_alloc_resources(device_t dev __attribute__((unused)),
                         struct resource_spec *spec,
                         struct resource **res)
@@ -98,32 +98,28 @@ void bus_release_resources(device_t dev __attribute__((unused)),
                            struct resource_spec *spec __attribute__((unused)),
                            struct resource **res __attribute__((unused))) {}
 
-/* -----------------------------------------------------------------------
+/*
  * bus_setup_intr / bus_teardown_intr
- * ----------------------------------------------------------------------- */
+ * */
 int bus_setup_intr(device_t dev __attribute__((unused)),
                    struct resource *r,
                    int flags __attribute__((unused)),
-                   driver_filter_t filter,
+                   driver_filter_t filter __attribute__((unused)),
                    driver_intr_t ithread __attribute__((unused)),
-                   void *arg,
+                   void *arg __attribute__((unused)),
                    void **cookiep)
 {
-    unsigned long irq = (unsigned long)r->r_start;
-    int rc;
-
-    if (!filter)
-        return -EINVAL;
-
-    rc = ukplat_irq_register(irq, (irq_handler_func_t)filter, arg);
-    if (rc != 0) {
-        uk_pr_err("bcm_gpio_shim: ukplat_irq_register(%lu) failed: %d\n",
-                  irq, rc);
-        return rc;
-    }
+    /*
+     * The Unikraft raspi platform does not expose GPIO bank IRQs (49/50)
+     * through ukplat_irq_register.  Return success so bcm_gpio_attach can
+     * complete; interrupt-driven GPIO events will not fire, but all polled
+     * pin operations (set / get / set_func / set_pud) work normally via
+     * direct MMIO.
+     */
     if (cookiep)
         *cookiep = r;
-    uk_pr_info("bcm_gpio_shim: registered IRQ %lu\n", irq);
+    uk_pr_info("bcm_gpio_shim: IRQ %lu registered as no-op (polled mode)\n",
+               r ? (unsigned long)r->r_start : 0UL);
     return 0;
 }
 
@@ -134,18 +130,18 @@ int bus_teardown_intr(device_t dev __attribute__((unused)),
     return 0;
 }
 
-/* -----------------------------------------------------------------------
+/*
  * Static device instance used for KOBJ dispatch
- * ----------------------------------------------------------------------- */
+ * */
 static struct device shim_gpio_device = {
     .d_softc    = NULL,
     .d_methods  = NULL,
     .d_nameunit = "gpio0",
 };
 
-/* -----------------------------------------------------------------------
+/*
  * uk_gpio_init
- * ----------------------------------------------------------------------- */
+ * */
 int uk_gpio_init(void)
 {
     int rc;
@@ -186,9 +182,9 @@ fail:
     return -ENXIO;
 }
 
-/* -----------------------------------------------------------------------
+/*
  * Direct MMIO GPIO operations
- * ----------------------------------------------------------------------- */
+ * */
 void uk_gpio_set_func(unsigned int pin, unsigned int func)
 {
     uint32_t bank   = pin / 10;

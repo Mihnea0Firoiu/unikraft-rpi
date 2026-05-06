@@ -97,16 +97,6 @@ LIBRASPIPLAT_SRCS-y				+= $(LIBRASPIPLAT_BASE)/eth/lib/interrupt.c
 LIBRASPIPLAT_SRCS-y				+= $(LIBRASPIPLAT_BASE)/drivers/raspi_net.c
 LIBRASPIPLAT_SRCS-$(CONFIG_LIBBCM2835_SPI)      += $(LIBRASPIPLAT_BASE)/drivers/bcm2835_spi.c
 
-## GPIO shim: isolated include path for the unmodified FreeBSD driver
-BCM_GPIO_FREEBSD_CINCLUDES := \
-    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd \
-    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd/sys \
-    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd/dev \
-    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd/machine \
-    -I$(LIBRASPIPLAT_BASE)/drivers/include \
-    -I$(LIBRASPIPLAT_BASE)/drivers/freebsd \
-    -I$(LIBRASPIPLAT_BASE)/include
-
 ## GPIO shim source files
 LIBRASPIPLAT_SRCS-$(CONFIG_LIBBCM2835_GPIO) += \
     $(LIBRASPIPLAT_BASE)/drivers/kobj_descriptors.c
@@ -115,9 +105,19 @@ LIBRASPIPLAT_SRCS-$(CONFIG_LIBBCM2835_GPIO) += \
 LIBRASPIPLAT_SRCS-$(CONFIG_LIBBCM2835_GPIO) += \
     $(LIBRASPIPLAT_BASE)/drivers/freebsd/bcm2835_gpio.c|freebsd_gpio
 
-## Per-file CFLAGS for the FreeBSD driver (isolated include path, no warnings)
-$(LIBRASPIPLAT_BASE)/drivers/freebsd/bcm2835_gpio.c_FLAGS := \
-    $(BCM_GPIO_FREEBSD_CINCLUDES) \
+## Per-file flags for bcm2835_gpio.c (tag = freebsd_gpio).
+## Unikraft vprefix_src expands to: LIBRASPIPLAT_BCM2835_GPIO_FREEBSD_GPIO_INCLUDES
+## and LIBRASPIPLAT_BCM2835_GPIO_FREEBSD_GPIO_FLAGS
+LIBRASPIPLAT_BCM2835_GPIO_FREEBSD_GPIO_INCLUDES := \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd/sys \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd/dev \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include/freebsd/machine \
+    -I$(LIBRASPIPLAT_BASE)/drivers/include \
+    -I$(LIBRASPIPLAT_BASE)/drivers/freebsd \
+    -I$(LIBRASPIPLAT_BASE)/include
+
+LIBRASPIPLAT_BCM2835_GPIO_FREEBSD_GPIO_FLAGS := \
     -Wno-unused-parameter \
     -Wno-missing-prototypes \
     -Wno-implicit-function-declaration \

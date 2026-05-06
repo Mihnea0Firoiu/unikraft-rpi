@@ -13,10 +13,6 @@
 #include <string.h>
 #include <stdlib.h>   /* abort() */
 
-#ifndef bzero
-static inline void bzero(void *p, size_t n) { memset(p, 0, n); }
-#endif
-
 /* No-op micro-second delay stub */
 static inline void DELAY(int n) { (void)n; }
 

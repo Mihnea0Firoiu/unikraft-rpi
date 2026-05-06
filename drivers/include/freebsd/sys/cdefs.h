@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /*
- * Shim: include the real glibc <sys/cdefs.h> via #include_next so that
- * downstream system headers (string.h, stdio.h, …) still find it, then
- * overlay the FreeBSD-specific macros that bcm2835_gpio.c relies on.
+ * FreeBSD sys/cdefs.h shim — standalone, no #include_next.
+ *
+ * Unikraft uses musl which does NOT provide sys/cdefs.h, so we cannot
+ * forward to a system copy.  We define only the macros that bcm2835_gpio.c
+ * (and its transitive includes) actually use.
  */
 #pragma once
-#include_next <sys/cdefs.h>
 
 #ifndef __FBSDID
-#define __FBSDID(s)   /* nothing */
+#define __FBSDID(s)
 #endif
 
 #ifndef __unused
@@ -37,4 +38,9 @@
 
 #ifndef __dead2
 #define __dead2         __attribute__((__noreturn__))
+#endif
+
+#ifndef __BEGIN_DECLS
+#define __BEGIN_DECLS
+#define __END_DECLS
 #endif
