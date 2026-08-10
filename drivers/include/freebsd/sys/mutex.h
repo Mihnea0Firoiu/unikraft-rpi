@@ -63,3 +63,33 @@ static inline void mtx_unlock_spin(struct mtx *m)
 
 /* MA_OWNED assertion — no-op in shim */
 #define mtx_assert(m, what)  do { (void)(m); (void)(what); } while (0)
+#define MA_OWNED    0
+
+/*
+ * MTX_DEF (non-spin) lock/unlock — single-threaded cooperative shim.
+ * No real contention is possible, so these are no-ops.
+ */
+static inline void mtx_lock(struct mtx *m __attribute__((unused)))   {}
+static inline void mtx_unlock(struct mtx *m __attribute__((unused))) {}
+
+/*
+ * mtx_sleep — used by bcm_bsc_transfer() to wait for the ISR to set
+ * BCM_I2C_DONE.  Since bus_setup_intr is a no-op and we bypass
+ * bcm_bsc_transfer entirely in favour of our polled uk_i2c_write/read,
+ * this function is dead code.  It is present only for linkage.
+ */
+static inline int
+mtx_sleep(void *chan    __attribute__((unused)),
+          struct mtx *m __attribute__((unused)),
+          int    pri    __attribute__((unused)),
+          const char *w __attribute__((unused)),
+          int    timo   __attribute__((unused)))
+{
+    return 0;   /* never called from shim paths */
+}
+
+/*
+ * wakeup — counterpart to mtx_sleep; called from bcm_bsc_intr() which
+ * is also dead code in polled mode.
+ */
+static inline void wakeup(void *chan __attribute__((unused))) {}

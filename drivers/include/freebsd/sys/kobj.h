@@ -1,11 +1,12 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /*
- * FreeBSD sys/kobj.h shim — re-exports from bcm_gpio_internal.h.
+ * FreeBSD sys/kobj.h shim — re-exports from shim_core.h.
  *
- * The actual struct/typedef/macro definitions live in bcm_gpio_internal.h
- * so they can be shared between the FreeBSD-side driver (compiled with the
- * isolated include path) and the shim-side files (kobj_descriptors.c,
- * bcm_gpio_shim.c) compiled with the normal Unikraft include path.
+ * All KOBJ types (kobjop_desc, kobj_method_t, driver_t, …) live in
+ * shim_core.h so they are shared between FreeBSD driver sources (compiled
+ * with the isolated include path) and shim-side files compiled with the
+ * normal Unikraft include path.  Per-driver extras live in the driver's own
+ * <driver>_internal.h, which is NOT on the FreeBSD isolated include path.
  */
 #pragma once
-#include <bcm_gpio_internal.h>
+#include <shim_core.h>

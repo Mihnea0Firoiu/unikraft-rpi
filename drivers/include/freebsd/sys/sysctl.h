@@ -15,7 +15,9 @@
 #define OID_AUTO            (-1)
 #define CTLFLAG_RD          0x80000000
 #define CTLFLAG_RW          0x40000000
+#define CTLFLAG_RWTUN       0x40000000  /* tunable + RW, same value for shim */
 #define CTLTYPE_STRING      2
+#define CTLTYPE_UINT        6
 #define CTLFLAG_MPSAFE      0
 #define CTLFLAG_NEEDGIANT   0
 
@@ -63,3 +65,39 @@ sysctl_handle_string(struct sysctl_oid *oidp __attribute__((unused)),
 {
     return 0;
 }
+
+static inline int
+sysctl_handle_int(struct sysctl_oid *oidp __attribute__((unused)),
+                  void *arg1 __attribute__((unused)),
+                  int   arg2 __attribute__((unused)),
+                  struct sysctl_req *req  __attribute__((unused)))
+{
+    return 0;
+}
+
+/* SYSCTL_ADD_INT — no-op, result discarded */
+#define SYSCTL_ADD_INT(ctx, parent, nbr, name, access, ptr, val, descr) \
+    ((void)0)
+
+/* SYSCTL_ADD_UINT — no-op */
+#define SYSCTL_ADD_UINT(ctx, parent, nbr, name, access, ptr, val, descr) \
+    ((void)0)
+
+/*
+ * Top-level SYSCTL_NODE / SYSCTL_INT / SYSCTL_UINT macros.
+ * sdhci.c emits these at file scope (outside any function).
+ * They expand to nothing so the translation unit still compiles.
+ */
+#define SYSCTL_NODE(parent, nbr, name, access, handler, descr)  /* no-op */
+#define SYSCTL_INT(parent, nbr, name, access, ptr, val, descr)  /* no-op */
+#define SYSCTL_UINT(parent, nbr, name, access, ptr, val, descr) /* no-op */
+
+/* SYSCTL_DECL — declares an extern sysctl tree node; no-op in shim */
+#define SYSCTL_DECL(name)  /* no-op */
+
+/*
+ * TUNABLE_INT — declares a boot-time tunable integer; no-op in shim.
+ * bcm2835_sdhci.c uses TUNABLE_INT at file scope to register tunables.
+ */
+#define TUNABLE_INT(path, ptr)  /* no-op */
+#define TUNABLE_STR(path, ptr, len)  /* no-op */

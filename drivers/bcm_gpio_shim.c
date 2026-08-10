@@ -98,37 +98,7 @@ void bus_release_resources(device_t dev __attribute__((unused)),
                            struct resource_spec *spec __attribute__((unused)),
                            struct resource **res __attribute__((unused))) {}
 
-/*
- * bus_setup_intr / bus_teardown_intr
- * */
-int bus_setup_intr(device_t dev __attribute__((unused)),
-                   struct resource *r,
-                   int flags __attribute__((unused)),
-                   driver_filter_t filter __attribute__((unused)),
-                   driver_intr_t ithread __attribute__((unused)),
-                   void *arg __attribute__((unused)),
-                   void **cookiep)
-{
-    /*
-     * The Unikraft raspi platform does not expose GPIO bank IRQs (49/50)
-     * through ukplat_irq_register.  Return success so bcm_gpio_attach can
-     * complete; interrupt-driven GPIO events will not fire, but all polled
-     * pin operations (set / get / set_func / set_pud) work normally via
-     * direct MMIO.
-     */
-    if (cookiep)
-        *cookiep = r;
-    uk_pr_info("bcm_gpio_shim: IRQ %lu registered as no-op (polled mode)\n",
-               r ? (unsigned long)r->r_start : 0UL);
-    return 0;
-}
-
-int bus_teardown_intr(device_t dev __attribute__((unused)),
-                      struct resource *r __attribute__((unused)),
-                      void *cookie __attribute__((unused)))
-{
-    return 0;
-}
+/* bus_setup_intr / bus_teardown_intr are defined in bus_stubs.c */
 
 /*
  * Static device instance used for KOBJ dispatch

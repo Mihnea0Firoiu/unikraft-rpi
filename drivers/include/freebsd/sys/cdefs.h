@@ -40,6 +40,15 @@
 #define __dead2         __attribute__((__noreturn__))
 #endif
 
+/*
+ * __diagused — marks variables used only in diagnostic assertions (KASSERT).
+ * In FreeBSD this suppresses "unused variable" warnings when INVARIANTS is
+ * not defined and KASSERT is a no-op.
+ */
+#ifndef __diagused
+#define __diagused      __attribute__((__unused__))
+#endif
+
 #ifndef __BEGIN_DECLS
 #define __BEGIN_DECLS
 #define __END_DECLS

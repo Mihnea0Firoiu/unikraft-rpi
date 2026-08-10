@@ -3,13 +3,19 @@
  * kobj_descriptors.c — defines all 24 kobjop_desc instances plus
  * shim_gpio_driver_reg storage and _shim_thread.
  *
- * Only bcm_gpio_internal.h is needed; no FreeBSD shim include path required.
+ * Only bcm_gpio_internal.h is needed; no FreeBSD isolated include path required.
  */
 
 #include <bcm_gpio_internal.h>
 
-/* ---- shim_gpio_driver_reg storage ---- */
+/* ---- shim_gpio_driver_reg storage and registration function ---- */
 struct shim_driver_reg shim_gpio_driver_reg = { NULL, 0 };
+
+void _shim_gpio_register(const void *methods, size_t softc_size)
+{
+    shim_gpio_driver_reg.sdr_methods    = (const kobj_method_t *)methods;
+    shim_gpio_driver_reg.sdr_softc_size = softc_size;
+}
 
 /* ---- Device interface ---- */
 struct kobjop_desc device_probe_desc          = { "device_probe",   NULL };

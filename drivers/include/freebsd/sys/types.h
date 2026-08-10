@@ -21,3 +21,14 @@ typedef uint32_t xref_t;
 
 /* FDT cell type (big-endian 32-bit value, stored as u32) */
 typedef uint32_t pcell_t;
+
+/* Physical address type (used by bcm2835_sdhci.c for DMA buffer address) */
+typedef uintptr_t vm_paddr_t;
+
+/* Boolean constants (FreeBSD style) */
+#ifndef TRUE
+#  define TRUE  1
+#endif
+#ifndef FALSE
+#  define FALSE 0
+#endif
