@@ -4,15 +4,7 @@ git clone https://github.com/unikraft/app-helloworld && cd app-helloworld
 
 mkdir workdir && git clone -b RELEASE-0.16.3 https://github.com/unikraft/unikraft.git workdir/unikraft
 
-git clone https://github.com/Mihnea0Firoiu/unikraft-rpi.git -b measurements workdir/unikraft/plat/raspi
-
-mkdir workdir/unikraft/include/uk/intctlr/
-cp workdir/unikraft/plat/raspi/include/uk/intctlr/limits.h workdir/unikraft/include/uk/intctlr/limits.h
-
-# Pull the common lcpu headers so #include <uk/plat/common/lcpu.h> works:
-mkdir -p workdir/unikraft/include/uk/plat/common
-cp -r workdir/unikraft/plat/common/include/uk/plat/common/*.h \
-      workdir/unikraft/include/uk/plat/common/
+git clone https://github.com/jobpaardekooper/unikraft-rpi.git workdir/unikraft/plat/raspi
 
 cd workdir/unikraft/plat && echo '$(eval $(call import_lib,$(UK_PLAT_BASE)/raspi))' >> Makefile.uk && cd ../../..
 
@@ -26,16 +18,15 @@ touch rootfs/test.txt
 
 cd rootfs && find -depth -print | tac | bsdcpio -o --format newc > ../initrd.cpio && cd ..
 
-cp ../smp-network-app-config .config
-cp ../../smp/network-app/client/main.c ./main.c
-
+cp ../helloworld-config .config
 echo 'CONFIG_UK_APP="'$(pwd)'"' >> .config
 echo 'CONFIG_UK_BASE="'$(pwd)/workdir/unikraft'"' >> .config
 echo 'CONFIG_LIBVFSCORE_AUTOMOUNT_EINITRD_PATH="'$(pwd)/initrd.cpio'"' >> .config
 
-sed -i '4s|.*|LIBS := $(UK_LIBS)/musl:$(UK_LIBS)/lwip|' Makefile
+sed -i '4s/.*/LIBS := $(UK_LIBS)\/musl:$(UK_LIBS)\/lwip/' Makefile
 
-make -j16 all
+cp ../../download-client/main.c ./main.c
+
+make all
 
 cp ./workdir/build/kernel8.img ../kernel8.img
-

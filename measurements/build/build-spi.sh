@@ -4,10 +4,11 @@ git clone https://github.com/unikraft/app-helloworld && cd app-helloworld
 
 mkdir workdir && git clone -b RELEASE-0.16.3 https://github.com/unikraft/unikraft.git workdir/unikraft
 
-git clone https://github.com/Mihnea0Firoiu/unikraft-rpi.git -b measurements workdir/unikraft/plat/raspi
+git clone https://github.com/Mihnea0Firoiu/unikraft-rpi.git -b gpio_native workdir/unikraft/plat/raspi
 
 mkdir workdir/unikraft/include/uk/intctlr/
 cp workdir/unikraft/plat/raspi/include/uk/intctlr/limits.h workdir/unikraft/include/uk/intctlr/limits.h
+cp workdir/unikraft/plat/raspi/include/uk/spi.h workdir/unikraft/include/uk/spi.h
 
 # Pull the common lcpu headers so #include <uk/plat/common/lcpu.h> works:
 mkdir -p workdir/unikraft/include/uk/plat/common
@@ -26,8 +27,8 @@ touch rootfs/test.txt
 
 cd rootfs && find -depth -print | tac | bsdcpio -o --format newc > ../initrd.cpio && cd ..
 
-cp ../smp-network-app-config .config
-cp ../../smp/network-app/client/main.c ./main.c
+cp ../spi-config .config
+cp ../../spi/main.c ./main.c
 
 echo 'CONFIG_UK_APP="'$(pwd)'"' >> .config
 echo 'CONFIG_UK_BASE="'$(pwd)/workdir/unikraft'"' >> .config
@@ -38,4 +39,3 @@ sed -i '4s|.*|LIBS := $(UK_LIBS)/musl:$(UK_LIBS)/lwip|' Makefile
 make -j16 all
 
 cp ./workdir/build/kernel8.img ../kernel8.img
-
