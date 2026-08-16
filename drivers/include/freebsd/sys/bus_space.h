@@ -28,3 +28,31 @@ bus_space_write_4(bus_space_tag_t t __attribute__((unused)),
 {
     *(volatile uint32_t *)(h + offset) = val;
 }
+
+/*
+ * bus_space_read_multi_4 / bus_space_write_multi_4
+ *
+ * Used by bcm_sdhci_read_multi_4 / bcm_sdhci_write_multi_4 for PIO
+ * data FIFO transfers.  count is in 32-bit words.
+ */
+static inline void
+bus_space_read_multi_4(bus_space_tag_t t __attribute__((unused)),
+                       bus_space_handle_t h,
+                       unsigned long offset,
+                       uint32_t *datap, size_t count)
+{
+    volatile uint32_t *reg = (volatile uint32_t *)(h + offset);
+    while (count--)
+        *datap++ = *reg;
+}
+
+static inline void
+bus_space_write_multi_4(bus_space_tag_t t __attribute__((unused)),
+                        bus_space_handle_t h,
+                        unsigned long offset,
+                        const uint32_t *datap, size_t count)
+{
+    volatile uint32_t *reg = (volatile uint32_t *)(h + offset);
+    while (count--)
+        *reg = *datap++;
+}

@@ -4,10 +4,10 @@ git clone https://github.com/unikraft/app-helloworld && cd app-helloworld
 
 mkdir workdir && git clone -b RELEASE-0.16.3 https://github.com/unikraft/unikraft.git workdir/unikraft
 
-git clone https://github.com/jobpaardekooper/unikraft-rpi.git workdir/unikraft/plat/raspi
+git clone https://github.com/Mihnea0Firoiu/unikraft-rpi.git -b measurements workdir/unikraft/plat/raspi
 
 mkdir workdir/unikraft/include/uk/intctlr/
-mv workdir/unikraft/plat/raspi/include/uk/intctlr/limits.h workdir/unikraft/include/uk/intctlr/limits.h
+cp workdir/unikraft/plat/raspi/include/uk/intctlr/limits.h workdir/unikraft/include/uk/intctlr/limits.h
 
 # Pull the common lcpu headers so #include <uk/plat/common/lcpu.h> works:
 mkdir -p workdir/unikraft/include/uk/plat/common

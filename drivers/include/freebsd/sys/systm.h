@@ -16,6 +16,8 @@
 /* No-op micro-second delay stub */
 static inline void DELAY(int n) { (void)n; }
 
+/* bootverbose is defined as the macro 0 in sys/param.h */
+
 /* panic: print and hang (bare-metal, no way to gracefully exit) */
 #ifndef panic
 static inline __attribute__((noreturn)) void panic(const char *msg, ...) {

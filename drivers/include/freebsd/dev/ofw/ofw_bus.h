@@ -48,4 +48,15 @@ ofw_bus_node_is_compatible(phandle_t node __attribute__((unused)),
                             const char *compat __attribute__((unused)))
 { return 0; }
 
+/*
+ * ofw_bus_get_node_desc — KOBJ method descriptor for the OFW bus interface.
+ *
+ * In FreeBSD this is generated from ofw_bus_if.m.  bcm2835_gpio.c references
+ * it in its DEVMETHOD table (DEVMETHOD(ofw_bus_get_node, bcm_gpio_get_node)),
+ * so the extern must be visible from the FreeBSD isolated include path.
+ * The definition lives in kobj_descriptors.c (normal Unikraft path).
+ */
+#include <sys/kobj.h>
+extern struct kobjop_desc ofw_bus_get_node_desc;
+
 #endif /* _FREEBSD_SHIM_OFW_BUS_H_ */

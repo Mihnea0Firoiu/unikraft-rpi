@@ -19,6 +19,7 @@
 
 /* bus_setup_intr flags */
 #define INTR_TYPE_MISC   0
+#define INTR_TYPE_BIO    0x0010   /* block I/O interrupt (bcm2835_sdhci.c) */
 #define INTR_MPSAFE      0
 
 /* Filter return codes */
